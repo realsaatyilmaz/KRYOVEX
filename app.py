@@ -28,9 +28,7 @@ def init_db():
 def is_roblox_client(user_agent: str) -> bool:
     if not user_agent:
         return False
-    ua = user_agent.lower()
-    # Roblox Studio, RobloxApp, HTTPService / HttpGet istekleri
-    return "roblox" in ua
+    return "roblox" in user_agent.lower()
 
 
 @app.route("/")
@@ -47,7 +45,6 @@ def api_save():
     if not isinstance(script, str) or not script.strip():
         return jsonify({"error": "Script boş olamaz"}), 400
 
-    # 32 karakterlik random token (hex: 16 byte -> 32 karakter)
     token = secrets.token_hex(16)
 
     with sqlite3.connect(DB_PATH) as conn:
@@ -57,16 +54,15 @@ def api_save():
         )
         conn.commit()
 
-    # Sunucunun kendi domaini üzerinden /v2/scrap/<32-karakter>/raw URL'i üret
-    base_url = request.host_url.rstrip("/")
-    raw_url = f"{base_url}/v2/scrap/{token}/raw"
+    proto = request.headers.get("X-Forwarded-Proto", request.scheme)
+    host = request.headers.get("X-Forwarded-Host", request.host)
+    raw_url = f"{proto}://{host}/v2/scrap/{token}/raw"
 
     return jsonify({"token": token, "url": raw_url}), 200
 
 
 @app.route("/v2/scrap/<token>/raw", methods=["GET"])
 def scrap_raw(token: str):
-    # Token format kontrolü (32 hex karakter)
     if not re.fullmatch(r"[0-9a-fA-F]{32}", token):
         return Response("404 Not Found!", status=404, mimetype="text/plain")
 
@@ -86,12 +82,13 @@ def scrap_raw(token: str):
     return Response(row[0], status=200, mimetype="text/plain; charset=utf-8")
 
 
-# Normal tarayıcıdan /v2/scrap/<token> gibi doğrudan erişimlerde de 404 döndür
 @app.route("/v2/scrap/<path:subpath>", methods=["GET"])
 def scrap_block(subpath: str):
     return Response("404 Not Found!", status=404, mimetype="text/plain")
 
 
+init_db()
+
 if __name__ == "__main__":
-    init_db()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
